@@ -84,7 +84,7 @@ export default class RotorArray {
 
         let rotorIndex = 0;
         for (let rotor of this.rotors) {
-            signalPosition = rotor.propogateSignal(inputPosition)
+            signalPosition = rotor.propogateSignal(signalPosition)
 
             console.log("Result at rotor " + rotorIndex +": " + signalPosition) // !!! To remove
             rotorIndex ++;
