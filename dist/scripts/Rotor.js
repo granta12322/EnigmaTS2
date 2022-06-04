@@ -36,6 +36,10 @@ const RIGHT_LETTER_POSITION = 1;
 function mod(a, n) {
     return ((a % n) + n) % n;
 }
+function randIntBetween(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+;
 class Rotor {
     constructor(id, offset = 0) {
         this.id = id;
@@ -54,48 +58,52 @@ class Rotor {
     createLetterIndexMap(randomSeed) {
         const inputLetterIndexes = [...Object.keys(ALPHABET_INDEX)];
         let availableOutputs = [...Object.keys(ALPHABET_INDEX)];
-        let inputIndex = 0;
+        let inputIndex;
         let letterMapping = [[]];
-        let min = 0;
-        let max;
         let alreadyChosenIndexes = [];
-        for (inputIndex; inputIndex < LETTER_COUNT; inputIndex++) {
-            let availableOutputCount = availableOutputs.length;
-            let floatToIntFactor = availableOutputCount / SEED_RANGE;
-            let outputIndex;
-            max = availableOutputCount - 1;
-            // ensure no duplicate indexes.
-            do {
-                outputIndex = Math.floor(Math.random() * (max - min + 1) + min);
-            } while (alreadyChosenIndexes.includes(outputIndex) || inputIndex === outputIndex);
-            alreadyChosenIndexes.push(outputIndex);
-            delete availableOutputs[outputIndex];
+        for (inputIndex = 0; inputIndex < LETTER_COUNT; inputIndex++) {
+            let outputIndex = selectIndexPair(inputIndex, availableOutputs);
             let letterPair = [inputIndex, outputIndex];
             letterMapping[inputIndex] = letterPair;
+            alreadyChosenIndexes.push(outputIndex);
+            delete availableOutputs[outputIndex];
         }
-        //console.log(letterMapping);
+        ;
         return letterMapping;
+        function selectIndexPair(inputIndex, availableOutputs) {
+            let availableOutputCount = availableOutputs.length; // !!! Can improve the way this is written, Something something set difference between all letters and those chosen.
+            let outputIndex;
+            // Ensure no outputIndex duplicates.
+            let max = availableOutputCount - 1;
+            let min = 0;
+            do {
+                outputIndex = randIntBetween(min, max);
+            } while (alreadyChosenIndexes.includes(outputIndex)
+                || inputIndex === outputIndex);
+            return outputIndex;
+        }
+        ;
     }
+    ;
     stepRotor() {
         this.offset = (this.offset + 1) % LETTER_COUNT; // !!! Possible off by 1 error here.
     }
     ;
+    /**
+     * @desc Calculates the position in space where a signal should be output based on where it was input.
+     * After
+     * @param inputPosition Position here refers to the location in space where a signal moves through,
+     *                      If the input letter is A and htere is an offset of 2 then the signal travels through position 2.
+     *                      By contrast index referes to the position within the alphabet.
+     *
+     * @returns
+     */
     propogateSignal(inputPosition) {
-        //console.log('----------------------------------');
+        // The calculation here is Pos_out = ((Indx_in + offset) % 26 + dIndx ) % 26 
         let inputIndex = mod(inputPosition - this.offset, LETTER_COUNT);
-        //console.log(`InputPosition: `, inputPosition);
-        //console.log('Offset: ', this.offset);
-        //console.log(`InputIndex: `, inputIndex);
         let letterPair = this.letterMapping[inputIndex];
-        //console.log(letterPair);
         let indexDelta = letterPair[LEFT_LETTER_POSITION] - letterPair[RIGHT_LETTER_POSITION];
-        //console.log(`letterPair: `, letterPair);
-        //console.log(`indexDelta: `, indexDelta);
-        let intermediary = mod(inputPosition, LETTER_COUNT) + indexDelta;
-        //console.log(`Intermediary: `, intermediary);
-        let outputPosition = mod(intermediary, LETTER_COUNT); // !!! This is potentially wrong. Should write some tests to assert this is correct.
-        //console.log(`OutputPosition: `, outputPosition);
-        this.stepRotor();
+        let outputPosition = mod(mod(inputPosition, LETTER_COUNT) + indexDelta, LETTER_COUNT); // !!! This is potentially wrong. Should write some tests to assert this is correct.
         return outputPosition;
     }
     ;
