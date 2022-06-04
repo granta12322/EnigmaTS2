@@ -36,10 +36,12 @@ const RIGHT_LETTER_POSITION= 1;
 function mod(a: number, n: number) {
     return ((a % n ) + n ) % n
 }
+ 
 
 function randIntBetween(min: number, max:number) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 };
+
 
 export default class Rotor {
     id: number;
@@ -57,21 +59,21 @@ export default class Rotor {
         this.letterMapping = this.createLetterIndexMap(this.randomSeed);
     };
 
+    
     /**
      * 
      * @param randomSeed Dictates consistent, random mapping between letters
      * @returns a LETTER_COUNT*2 array of letter index pairings for rotor IO.
      */
     createLetterIndexMap(randomSeed: string): Array<Array<number>> {
-
         const inputLetterIndexes = [...Object.keys(ALPHABET_INDEX)];
         let availableOutputs: Array<string> = [...Object.keys(ALPHABET_INDEX)];
         
         let inputIndex: number;
         let letterMapping: Array<Array<number>> =[[]]
         let alreadyChosenIndexes: Array<number> = [];
-        for (inputIndex = 0; inputIndex < LETTER_COUNT; inputIndex++) {
-           
+        
+        for (inputIndex = 0; inputIndex < LETTER_COUNT; inputIndex++) {   
             let outputIndex = selectIndexPair(inputIndex, availableOutputs) ;
             let letterPair: Array<number> = [inputIndex,outputIndex];
             letterMapping[inputIndex] = letterPair;
@@ -81,6 +83,7 @@ export default class Rotor {
         };
         return letterMapping;
 
+        
         function selectIndexPair(inputIndex: number, availableOutputs: Array<string>) {
             let availableOutputCount = availableOutputs.length;  // !!! Can improve the way this is written, Something something set difference between all letters and those chosen.
             let outputIndex;
@@ -96,14 +99,14 @@ export default class Rotor {
             );
             return outputIndex;
         };
-
-        
     };
 
+    
     stepRotor() { 
         this.offset = (this.offset + 1) % LETTER_COUNT;  // !!! Possible off by 1 error here.
     };
 
+    
     /**
      * @desc Calculates the position in space where a signal should be output based on where it was input.
      * After  
@@ -123,7 +126,6 @@ export default class Rotor {
                                         mod(inputPosition, LETTER_COUNT) + indexDelta 
                                         , LETTER_COUNT
                                         );     // !!! This is potentially wrong. Should write some tests to assert this is correct.
-
         return outputPosition;
     };
 };
