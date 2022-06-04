@@ -114,7 +114,7 @@ export default class Rotor {
      * @returns 
      */
     propogateSignal(inputPosition: number) {
-        // The calculation here is ((Indx_in + offset) % 26 + dIndx ) % 26 = Pos_out
+        // The calculation here is Pos_out = ((Indx_in + offset) % 26 + dIndx ) % 26 
         let inputIndex: number = mod(inputPosition - this.offset,LETTER_COUNT);
         let letterPair: Array<number> = this.letterMapping[inputIndex];
         let indexDelta: number = letterPair[LEFT_LETTER_POSITION] - letterPair[RIGHT_LETTER_POSITION];
