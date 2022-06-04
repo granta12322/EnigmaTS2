@@ -43,6 +43,7 @@ export default class RotorArray {
         this.rotors = this.buildRotorArray(rotorNumbers, rotorStartOffsets); 
     };
 
+    
     /**
      * 
      * @param rotorNumbers An Array dictating the order of rotor numbers used
@@ -60,6 +61,7 @@ export default class RotorArray {
         return rotors;
     };
 
+    
     /**
      * @desc When a rotor makes one full rotation the next rotor's offset is incremented
      * by one. The first rotor is rotated after every key stroke.
@@ -71,6 +73,7 @@ export default class RotorArray {
         };
     };
 
+    
     /**
      * @desc The rotors inputs and outputs form a consecutive circuit, with the exact path (and therefore output),
      * changing each time a letter is pressed. After the signal is propogated forwards and back step Rotors is called
