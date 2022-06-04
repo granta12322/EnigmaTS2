@@ -39,6 +39,7 @@ class RotorArray {
         this.id = rotorNumbers.toString();
         this.rotorStartOffsets = rotorStartOffsets;
         this.rotors = this.buildRotorArray(rotorNumbers, rotorStartOffsets);
+        this.reflector = new Rotor_1.default(-1);
     }
     ;
     /**
@@ -71,25 +72,38 @@ class RotorArray {
         ;
     }
     ;
+    propogateRotorSignals(inputIndex, isFirstPass) {
+        let inputPosition = inputIndex; // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
+        let signalPosition = inputPosition;
+        let rotorIndex = 0;
+        console.log("Rotor Assembly Input: ", inputPosition);
+        for (let rotor of this.rotors) {
+            signalPosition = rotor.propogateSignal(signalPosition, isFirstPass);
+            console.log("Result at rotor " + rotorIndex + ": " + signalPosition); // !!! To remove
+            rotorIndex++;
+        }
+        ;
+        return signalPosition;
+    }
+    ;
     /**
-     * @desc The rotors inputs and outputs form a consecutive circuit, with the exact path (and therefore output),
+     * @desc The rotors inputs and outputs form a consecutive circuit traveling a forward and backward pass via a reflector, with the exact path (and therefore output),
      * changing each time a letter is pressed. After the signal is propogated forwards and back step Rotors is called
      * to rotate the first rotor. This is handled by {@link stepRotors}
      * @param inputIndex The index refers to the position in the alphabet of a character.
      *
     */
-    propogateRotorSignals(inputIndex) {
+    propogateWholeSignal(inputIndex) {
         let inputPosition = inputIndex; // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
-        let signalPosition = inputPosition;
-        let rotorIndex = 0;
-        for (let rotor of this.rotors) {
-            signalPosition = rotor.propogateSignal(signalPosition);
-            console.log("Result at rotor " + rotorIndex + ": " + signalPosition); // !!! To remove
-            rotorIndex++;
-        }
-        ;
+        let positionAfterFirstPass = this.propogateRotorSignals(inputPosition, true);
+        let positionAfterReflector = this.reflector.propogateSignal(positionAfterFirstPass, true);
+        let positionAfterSecondPass = this.propogateRotorSignals(positionAfterReflector, false);
+        //console.log("Input:", inputPosition);
+        //console.log("After First: ",positionAfterFirstPass);
+        //console.log("After Reflector: ", positionAfterReflector);
+        //console.log("After Second: ", positionAfterSecondPass);
         this.stepRotors();
-        return signalPosition;
+        return positionAfterSecondPass;
     }
     ;
 }

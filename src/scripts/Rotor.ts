@@ -116,11 +116,13 @@ export default class Rotor {
      *
      * @returns 
      */
-    propogateSignal(inputPosition: number) {
+    propogateSignal(inputPosition: number, isFirstPass: boolean) {
         // The calculation here is Pos_out = ((Indx_in + offset) % 26 + dIndx ) % 26 
         let inputIndex: number = mod(inputPosition - this.offset,LETTER_COUNT);
         let letterPair: Array<number> = this.letterMapping[inputIndex];
+
         let indexDelta: number = letterPair[LEFT_LETTER_POSITION] - letterPair[RIGHT_LETTER_POSITION];
+        indexDelta = isFirstPass ? indexDelta : - indexDelta;  // index delta mirrored in reverse direction.
 
         let outputPosition: number = mod(
                                         mod(inputPosition, LETTER_COUNT) + indexDelta 

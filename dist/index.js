@@ -11,8 +11,6 @@ for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 10; j++) {
         let input = i;
         console.log("--------------------------");
-        console.log("Input: ", input);
-        let output = rotorArray.propogateRotorSignals(input);
-        console.log("Output: ", output);
+        let output = rotorArray.propogateWholeSignal(input);
     }
 }
