@@ -63,6 +63,25 @@ export default class RotorArray {
         return rotors;
     };
 
+    describe(): Array<object>  {
+        let state: Array<object> = [];
+        for(const [index, rotor] of this.rotors.entries()) {
+            state.push({
+                "Rotor Position": index,
+                "Rotor ID": rotor.id,
+                "Rotor Offset": rotor.offset
+            })
+        }
+
+        return state;
+    }
+
+    resetRotorArray(): void {
+        for(const [i,rotor] of this.rotors.entries()) {
+            rotor.offset = this.rotorStartOffsets[i]
+        }
+    }
+
     
     /**
      * @desc When a rotor makes one full rotation the next rotor's offset is incremented
@@ -76,17 +95,25 @@ export default class RotorArray {
     };
 
     
-    
-    propogateRotorSignals(inputIndex: number, isFirstPass: boolean ) {
-        let inputPosition: number = inputIndex // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
-        let signalPosition: number = inputPosition;
+    /**
+     * 
+     * @param inputPosition the position of the signal moving into the rotor
+     * @param isFirstPass Whether it is the first or reflected signal path. Determines behaviour of signal propogation
+     * within single rotor.
+     * @returns 
+     */
+    propogateRotorSignals(inputPosition: number, isFirstPass: boolean ) {
+        // !!! Throw custom exception
+        //if inputLetter.length() != 1 raise incorrectInputLength
+     
+        let signalPosition: number = inputPosition; // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
 
         let rotorIndex = 0;
-        console.log("Rotor Assembly Input: ", inputPosition);
+        //console.log("Rotor Assembly Input: ", signalPosition);
         for (let rotor of this.rotors) {
             signalPosition = rotor.propogateSignal(signalPosition, isFirstPass)
 
-            console.log("Result at rotor " + rotorIndex +": " + signalPosition) // !!! To remove
+            //console.log("Result at rotor " + rotorIndex +": " + signalPosition) // !!! To remove
             rotorIndex ++;
         };
         
@@ -100,19 +127,36 @@ export default class RotorArray {
      * @param inputIndex The index refers to the position in the alphabet of a character.
      *                   
     */
-    propogateWholeSignal(inputIndex: number) {
-        let inputPosition: number = inputIndex // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
+    propogateWholeSignal(inputChar: string):object {
+        
+        
+        let inputPosition: number = charToUTF(inputChar) // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
+        
         let positionAfterFirstPass: number  = this.propogateRotorSignals(inputPosition, true);
         let positionAfterReflector: number  = this.reflector.propogateSignal(positionAfterFirstPass, true);
         let positionAfterSecondPass: number = this.propogateRotorSignals(positionAfterReflector, false);
-
-        //console.log("Input:", inputPosition);
-        //console.log("After First: ",positionAfterFirstPass);
-        //console.log("After Reflector: ", positionAfterReflector);
-        //console.log("After Second: ", positionAfterSecondPass);
+        
         this.stepRotors();
-        return positionAfterSecondPass;
+        let state: object = this.describe();
+        
+        let outputChar = UTFToChar(positionAfterSecondPass);
+        let output = {
+            "input": inputChar,
+            "output": outputChar,
+            "endState": state
+        };
+        return output
     };
 
 
 };
+
+const UTF_OFFSET = 64;
+function charToUTF(inputLetter: string): number {
+    return inputLetter.charCodeAt(0) - UTF_OFFSET;
+}
+
+function UTFToChar(inputCode: number): string {
+    return String.fromCharCode(inputCode + UTF_OFFSET);
+}
+

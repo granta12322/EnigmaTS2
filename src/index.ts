@@ -4,13 +4,13 @@ let roter_1 = new Rotor(1);
 
 let rotorArray = new RotorArray([1,2,3],[0,1,2])
 
+let testString = 'alexandergrantisprettyfuckinggreat'
 
-for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 10; j++) {
-        let input = i;
-        console.log("--------------------------");
+for(let input of testString) {
 
-        let output = rotorArray.propogateWholeSignal(input);
+    console.log("--------------------------");
+    console.log(rotorArray.propogateWholeSignal(input));
+    };
 
-    }
-} 
+
+
