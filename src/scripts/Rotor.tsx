@@ -1,4 +1,8 @@
 import  seedrandom from "seedrandom";
+import ReactDOM from 'react-dom';
+import React from 'react';
+import { charToPosition, positionToChar } from './HelperFunctions';
+
 //import global from "global";
 const ALPHABET_INDEX = {
     0:'A',
@@ -70,7 +74,7 @@ export default class Rotor {
         let availableOutputs: Array<string> = [...Object.keys(ALPHABET_INDEX)];
         
         let inputIndex: number;
-        let letterMapping: Array<Array<number>> =[[]]
+        let letterMapping: Array<Array<number>> =[[]];
         let alreadyChosenIndexes: Array<number> = [];
         
         for (inputIndex = 0; inputIndex < LETTER_COUNT; inputIndex++) {   
@@ -106,6 +110,66 @@ export default class Rotor {
         this.offset = (this.offset + 1) % LETTER_COUNT;  // !!! Possible off by 1 error here.
     };
 
+    /** 
+     * 
+    */
+    describeRotor(): Array<Array<string>> {
+        let letterMap = this.letterMapping;
+        let rotorOffset = this.offset;
+
+        let rotorCharCodesForRender: Array<Array<number>> = [[]];
+
+        for (let i: number = 0; i < LETTER_COUNT; i++) {
+            let position: number = i;
+            let leftLetterCode: number;
+            let rightLetterCode: number;
+
+            let selectedLetterIndex: number = position + rotorOffset;
+            
+            leftLetterCode = letterMap[LEFT_LETTER_POSITION][ selectedLetterIndex ]; /// !!! Check this is correct
+            rightLetterCode = letterMap[RIGHT_LETTER_POSITION][ selectedLetterIndex ];
+
+            rotorCharCodesForRender.push( [leftLetterCode, rightLetterCode] );
+
+        };
+        return rotorCharCodesForRender.map( (codes) => (
+            codes.map( (code) => positionToChar(code) )
+            )
+        )
+    };
+
+
+
+    renderDial(charPair: Array<string>)  {
+
+        return (
+            <tr>
+                <td id = "L_" 
+                className = "rotor_text_dial"
+                >
+                    <p> {charPair[LEFT_LETTER_POSITION]}</p>
+                </td>
+                <td id = "R_" 
+                className = "rotor_text_dial"
+                >
+                    <p> {charPair[RIGHT_LETTER_POSITION]}</p>
+                </td>
+            </tr>
+        );
+    };
+
+
+    render = () => {
+        let charArray: Array<Array<string>> = this.describeRotor();
+        let dialClass = "rotor_text_dial";
+        let textClass = "dial_text";
+        
+        return (
+        <table id = "Rotor">
+            {charArray.map((charPair) => this.renderDial(charPair))}
+        </table>
+        );
+    };
     
     /**
      * @desc Calculates the position in space where a signal should be output based on where it was input.
@@ -113,7 +177,6 @@ export default class Rotor {
      * @param inputPosition Position here refers to the location in space where a signal moves through,
      *                      If the input letter is A and htere is an offset of 2 then the signal travels through position 2.
      *                      By contrast index referes to the position within the alphabet.
-     *
      * @returns 
      */
     propogateSignal(inputPosition: number, isFirstPass: boolean) {

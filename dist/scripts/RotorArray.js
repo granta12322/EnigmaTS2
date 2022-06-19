@@ -4,38 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Rotor_1 = __importDefault(require("./Rotor"));
+const react_1 = __importDefault(require("react"));
+const HelperFunctions_1 = require("./HelperFunctions");
 const leftLetterPosition = 0;
 const rightLetterPosition = 1;
-const ALPHABET_INDEX = {
-    0: 'A',
-    1: 'B',
-    2: 'C',
-    3: 'D',
-    4: 'E',
-    5: 'F',
-    6: 'G',
-    7: 'H',
-    8: 'I',
-    9: 'J',
-    10: 'K',
-    11: 'L',
-    12: 'M',
-    13: 'N',
-    14: 'O',
-    15: 'P',
-    16: 'Q',
-    17: 'R',
-    18: 'S',
-    19: 'T',
-    20: 'U',
-    21: 'V',
-    22: 'W',
-    23: 'X',
-    24: 'Y',
-    25: 'Z',
-};
 class RotorArray {
     constructor(rotorNumbers, rotorStartOffsets) {
+        this.render = () => {
+            return (react_1.default.createElement("div", null, this.rotors.map((rotor) => rotor.render())));
+        };
         this.id = rotorNumbers.toString();
         this.rotorStartOffsets = rotorStartOffsets;
         this.rotors = this.buildRotorArray(rotorNumbers, rotorStartOffsets);
@@ -59,22 +36,25 @@ class RotorArray {
         return rotors;
     }
     ;
-    describe() {
+    describeRotors() {
         let state = [];
         for (const [index, rotor] of this.rotors.entries()) {
             state.push({
-                "Rotor Position": index,
+                "Rotor Index": index,
                 "Rotor ID": rotor.id,
                 "Rotor Offset": rotor.offset
             });
         }
         return state;
     }
+    ;
     resetRotorArray() {
         for (const [i, rotor] of this.rotors.entries()) {
             rotor.offset = this.rotorStartOffsets[i];
         }
+        ;
     }
+    ;
     /**
      * @desc When a rotor makes one full rotation the next rotor's offset is incremented
      * by one. The first rotor is rotated after every key stroke.
@@ -118,13 +98,13 @@ class RotorArray {
      *
     */
     propogateWholeSignal(inputChar) {
-        let inputPosition = charToUTF(inputChar); // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
+        let inputPosition = (0, HelperFunctions_1.charToPosition)(inputChar); // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
         let positionAfterFirstPass = this.propogateRotorSignals(inputPosition, true);
         let positionAfterReflector = this.reflector.propogateSignal(positionAfterFirstPass, true);
         let positionAfterSecondPass = this.propogateRotorSignals(positionAfterReflector, false);
         this.stepRotors();
-        let state = this.describe();
-        let outputChar = UTFToChar(positionAfterSecondPass);
+        let state = this.describeRotors();
+        let outputChar = (0, HelperFunctions_1.positionToChar)(positionAfterSecondPass);
         let output = {
             "input": inputChar,
             "output": outputChar,
@@ -136,10 +116,3 @@ class RotorArray {
 }
 exports.default = RotorArray;
 ;
-const UTF_OFFSET = 64;
-function charToUTF(inputLetter) {
-    return inputLetter.charCodeAt(0) - UTF_OFFSET;
-}
-function UTFToChar(inputCode) {
-    return String.fromCharCode(inputCode + UTF_OFFSET);
-}
