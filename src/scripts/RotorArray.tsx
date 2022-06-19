@@ -1,36 +1,10 @@
 import Rotor from './Rotor';
+import ReactDOM from 'react-dom';
+import React from 'react';
+import { charToPosition, positionToChar } from './HelperFunctions';
 
 const leftLetterPosition = 0;
 const rightLetterPosition = 1;
-const ALPHABET_INDEX = {
-    0:'A',
-    1: 'B',
-    2: 'C',
-    3: 'D',
-    4: 'E',
-    5: 'F',
-    6: 'G',
-    7: 'H',
-    8: 'I',
-    9: 'J',
-    10: 'K',
-    11: 'L',
-    12: 'M',
-    13: 'N',
-    14: 'O',
-    15: 'P',
-    16: 'Q',
-    17: 'R',
-    18: 'S',
-    19: 'T',
-    20: 'U',
-    21: 'V',
-    22: 'W',
-    23: 'X',
-    24: 'Y',
-    25: 'Z',
-}
-
 
 export default class RotorArray {
     id: String;
@@ -63,24 +37,34 @@ export default class RotorArray {
         return rotors;
     };
 
-    describe(): Array<object>  {
+    describeRotors(): Array<object>  {
         let state: Array<object> = [];
         for(const [index, rotor] of this.rotors.entries()) {
             state.push({
-                "Rotor Position": index,
+                "Rotor Index": index,
                 "Rotor ID": rotor.id,
                 "Rotor Offset": rotor.offset
             })
         }
 
         return state;
-    }
+    };
+
+    render = () => {
+        return (
+            <div>
+                {this.rotors.map((rotor) => rotor.render())}
+            </div>
+        )
+    };
+
+
 
     resetRotorArray(): void {
         for(const [i,rotor] of this.rotors.entries()) {
             rotor.offset = this.rotorStartOffsets[i]
-        }
-    }
+        };
+    };
 
     
     /**
@@ -128,18 +112,16 @@ export default class RotorArray {
      *                   
     */
     propogateWholeSignal(inputChar: string):object {
-        
-        
-        let inputPosition: number = charToUTF(inputChar) // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
+        let inputPosition: number = charToPosition(inputChar) // the first ring of inputs never changes, A always 0, B always 1 e.t.c.
         
         let positionAfterFirstPass: number  = this.propogateRotorSignals(inputPosition, true);
         let positionAfterReflector: number  = this.reflector.propogateSignal(positionAfterFirstPass, true);
         let positionAfterSecondPass: number = this.propogateRotorSignals(positionAfterReflector, false);
         
         this.stepRotors();
-        let state: object = this.describe();
+        let state: object = this.describeRotors();
         
-        let outputChar = UTFToChar(positionAfterSecondPass);
+        let outputChar = positionToChar(positionAfterSecondPass);
         let output = {
             "input": inputChar,
             "output": outputChar,
@@ -151,12 +133,5 @@ export default class RotorArray {
 
 };
 
-const UTF_OFFSET = 64;
-function charToUTF(inputLetter: string): number {
-    return inputLetter.charCodeAt(0) - UTF_OFFSET;
-}
 
-function UTFToChar(inputCode: number): string {
-    return String.fromCharCode(inputCode + UTF_OFFSET);
-}
 

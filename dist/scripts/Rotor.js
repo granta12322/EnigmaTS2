@@ -1,5 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const react_1 = __importDefault(require("react"));
+const HelperFunctions_1 = require("./HelperFunctions");
 //import global from "global";
 const ALPHABET_INDEX = {
     0: 'A',
@@ -42,6 +47,12 @@ function randIntBetween(min, max) {
 ;
 class Rotor {
     constructor(id, offset = 0) {
+        this.render = () => {
+            let charArray = this.describeRotor();
+            let dialClass = "rotor_text_dial";
+            let textClass = "dial_text";
+            return (react_1.default.createElement("table", { id: "Rotor" }, charArray.map((charPair) => this.renderDial(charPair))));
+        };
         this.id = id;
         this.offset = offset;
         this.letterMapping = [[]];
@@ -90,12 +101,43 @@ class Rotor {
     }
     ;
     /**
+     *
+    */
+    describeRotor() {
+        let letterMap = this.letterMapping;
+        let rotorOffset = this.offset;
+        let rotorCharCodesForRender = [[]];
+        for (let i = 0; i < LETTER_COUNT; i++) {
+            let position = i;
+            let leftLetterCode;
+            let rightLetterCode;
+            let selectedLetterIndex = position + rotorOffset;
+            leftLetterCode = letterMap[LEFT_LETTER_POSITION][selectedLetterIndex]; /// !!! Check this is correct
+            rightLetterCode = letterMap[RIGHT_LETTER_POSITION][selectedLetterIndex];
+            rotorCharCodesForRender.push([leftLetterCode, rightLetterCode]);
+        }
+        ;
+        return rotorCharCodesForRender.map((codes) => (codes.map((code) => (0, HelperFunctions_1.positionToChar)(code))));
+    }
+    ;
+    renderDial(charPair) {
+        return (react_1.default.createElement("tr", null,
+            react_1.default.createElement("td", { id: "L_", className: "rotor_text_dial" },
+                react_1.default.createElement("p", null,
+                    " ",
+                    charPair[LEFT_LETTER_POSITION])),
+            react_1.default.createElement("td", { id: "R_", className: "rotor_text_dial" },
+                react_1.default.createElement("p", null,
+                    " ",
+                    charPair[RIGHT_LETTER_POSITION]))));
+    }
+    ;
+    /**
      * @desc Calculates the position in space where a signal should be output based on where it was input.
      * After
      * @param inputPosition Position here refers to the location in space where a signal moves through,
      *                      If the input letter is A and htere is an offset of 2 then the signal travels through position 2.
      *                      By contrast index referes to the position within the alphabet.
-     *
      * @returns
      */
     propogateSignal(inputPosition, isFirstPass) {
