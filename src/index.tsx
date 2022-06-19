@@ -2,7 +2,7 @@ import Rotor from './scripts/Rotor';
 import RotorArray from './scripts/RotorArray'
 import ReactDOM from 'react-dom';
 import React from 'react';
-import { KeyBoardKey } from './scripts/Keyboard';
+import KeyBoard  from './scripts/Keyboard';
 
 
 
@@ -13,8 +13,17 @@ let rotorArray = new RotorArray([1,2,3],[0,1,2])
 let testString = 'alexandergrantisprettyfuckinggreat'
 
 // @ts-ignore
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<KeyBoardKey isPressed = {false} char = "A"/>);
+ReactDOM.render(
+    <KeyBoard
+      rows={[
+        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+        ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+        ["Z", "X", "C", "V", "B", "N", "M"]
+      ]}
+    />,
+    document.getElementById("container")
+  );
+
 
 for(let input of testString) {
 
@@ -23,4 +32,4 @@ for(let input of testString) {
     };
 
 
-
+   
